@@ -1,11 +1,13 @@
 from pydantic import BaseModel, ConfigDict, Field
+import joblib
+from model_inference.constants import DEFAULT_MODEL_PATH
 
 # Implementa WineQualityRequest y WineQualityPrediction con Pydantic.
 # Revisa los campos de assets/inference_samples.csv y prohíbe columnas extra.
 from typing import Literal
 
+WineQualityLabel = Literal[tuple(joblib.load(DEFAULT_MODEL_PATH)["estimator"].classes_.tolist())]
 
-WineQualityLabel = Literal["acceptable", "excellent", "needs_review"]
 
 
 class WineInputSchema(BaseModel):

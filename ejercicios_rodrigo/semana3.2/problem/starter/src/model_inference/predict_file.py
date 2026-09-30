@@ -33,7 +33,7 @@ def main():
     predicciones = []
     error = False
 
-
+    print(estimator)
     if feature_names == None or feature_names != FEATURE_NAMES:
         print(f"error: El modelo espera unas características diferentes. \nCaracterísticas esperadas: {feature_names} \nCaracterísticas recibidas: {FEATURE_NAMES}.")
     elif estimator == None:

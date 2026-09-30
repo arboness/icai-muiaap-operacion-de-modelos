@@ -6,11 +6,12 @@ import logging
 from pathlib import Path
 from model_inference.contracts import WineInputSchema, WineQualityPredictionOutputSchema
 from model_inference.preprocess import FEATURE_NAMES
+from model_inference.constants import DEFAULT_MODEL_PATH
 from pydantic import ValidationError
 import joblib
 import numpy as np
 
-DEFAULT_MODEL_PATH = Path.cwd() / "models" / "wine_quality_classifier.joblib"
+
 
 
 logging.basicConfig(
