@@ -4,7 +4,7 @@
 # Implementa WineFeatures y preprocess_wine_request(). El orden anterior debe
 # coincidir con el artefacto, no con un orden arbitrario del CSV.
 
-MODEL_VERSION = "wine-quality-rf-v1"
+MODEL_VERSION = "wine-quality-rf-error"
 
 FEATURE_NAMES = [
     "fixed_acidity",
@@ -20,5 +20,5 @@ FEATURE_NAMES = [
     "alcohol",
 ]
 
-def preprocess_wine_request():
-    print("")
+def preprocess_wine_request(wine_request):
+   return [getattr(wine_request, name) for name in FEATURE_NAMES]
