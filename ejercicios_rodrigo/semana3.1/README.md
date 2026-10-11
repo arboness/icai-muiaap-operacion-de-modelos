@@ -1,4 +1,4 @@
-## Explicación
+# Ejercicio 1
 
 - Con pydantic, se ha realizado un contrato de entrada de datos para que, antes de probar un modelo, comprobar que los datos que se pasan siguen la estructura que el modelo espera. Como no sé qué rangos son los correctos, he puesto algunos valores por decisión propia pero que acepten los datos del csv. 
 
@@ -6,15 +6,14 @@
 
 - Para probarlo, se debe de ejecutar el archivo ``src/semana3/contract_test.py`` con ``uv run python -m semana3.contract_test``.
 
-### Tarea 1
-### Clasifica las piezas - Separa datos historicos de entrenamiento, artefacto entregado y datos nuevos de inferencia. Justifica que recibe cada frontera.
+## 01 - Clasifica las piezas - Separa datos historicos de entrenamiento, artefacto entregado y datos nuevos de inferencia. Justifica que recibe cada frontera.
 Aún no tenemos el artefacto entregado (modelo .joblib), luego tampoco los datos nuevos de inferencia fruto de aplicar el modelo a los datos históricos.
 
 - **Datos históricos de entrenamiento:** No los tenemos.
 - **Artefacto entregado:** ``.joblib``, no lo tenemos.
 - **Datos nuevos de inferencia:** Tampoco se tienen.
 
-### Tarea 2
+## 02 - Construye la tabla de campos - Para las once features indica nombre canonico, tipo, unidad, rango razonable y si admite valores ausentes
 
 ```python
 # src/semana3/contract.py
@@ -35,7 +34,7 @@ class WineInputSchema(BaseModel):
     alcohol: float = Field(..., ge=5, le=20, description="Alcohol content of the wine sample")
 ```
 
-### Tarea 3
+## 03 Fija el orden - Escribe el orden exacto del vector y demuestra por que cambiar dos columnas puede producir una prediccion silenciosamente incorrecta.
 Como Pydantic **ignora el orden de las columnas**, si no definimos ``FEATURES_NAME``, puede ser que nuestro ``df`` tenga la mismas columnas pero en distinto orden, y que el modelo reciba por ejemplo ``free_sulfur_dioxide`` en el lugar de ``total_sulfur_dioxide`` y viceversa y que prediga erróneamente teniendo en cuenta el valor de ``total_sulfur_dioxide`` para ``free_sulfur_dioxide`` y viceversa.
 
 ```python 
@@ -55,8 +54,7 @@ FEATURES_NAME = [
 ]
 ```
 
-### Tarea 4 
-#### Diseña fallos - Propone una fila valida, una columna desconocida, una fila fuera de rango y el momento del flujo en el que cada una debe fallar.
+## 04 - Diseña fallos - Propone una fila valida, una columna desconocida, una fila fuera de rango y el momento del flujo en el que cada una debe fallar.
 ```python
     # src/semana3/contract_test.py
 
@@ -99,8 +97,7 @@ FEATURES_NAME = [
 
 ```
 
-### Tarea 5
-#### Define aceptacion - Escribe tres criterios que el modulo de la clase 2 debera demostrar con tests y con un comando local.
+## 05 - Define aceptacion - Escribe tres criterios que el modulo de la clase 2 debera demostrar con tests y con un comando local.
 - **Criterio 1: Un CSV válido produce una predicción por fila.**
   - **Test:** con un CSV de 3 filas válidas, la salida tiene 3 predicciones en el mismo orden.
   - **Comando:** uv run python -m semana3.cli predict inference_samples.csv, genera el fichero de salida sin errores.  
