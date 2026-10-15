@@ -2,39 +2,47 @@
 
 # Declara DEFAULT_MODEL_PATH, load_wine_quality_model() e infer_wine_quality().
 # Comprueba las características del artefacto antes de llamar al clasificador.
-import logging
+
 from pathlib import Path
-from model_inference.contracts import WineQualityRequest, WineQualityPrediction
-from model_inference.preprocess import FEATURE_NAMES
-from pydantic import ValidationError
+from model_inference.preprocess import FEATURE_NAMES, MODEL_VERSION
 import joblib
-import numpy as np
 
-## Como estoy revisando esto después de haber visto ya otros ejercicios en clase con función de cargade modelo, creo esta función para cargarlo una sola vez
-def load_model(path):
-    return joblib.load(path)
 
-def load_feature_names(model):
-    return model["feature_names"]
+DEFAULT_MODEL_PATH = Path("models/wine_quality_classifier.joblib")
 
-def load_wine_quality_model(model):
-    return model["estimator"]
- 
-def load_wine_quality_model_version(model):
-    return model["model_version"]
 
-def infer_wine_quality(row, model):
-    return model.predict([row])
-
-def preprocess(row) -> WineQualityRequest:
+def load_wine_quality_model(path=DEFAULT_MODEL_PATH):
     try:
-        return WineQualityRequest.model_validate(row.to_dict())
-    except ValidationError as e:
-        raise ValueError(f"Error al procesar la fila: {row}. Error: {e}")
+        artifact = joblib.load(path)
+    except FileNotFoundError as e:
+        raise ValueError(f"No existe el modelo: {path}") from e
 
-def preprocessOutput(prediction):
-    try:
-        validPrediction = WineQualityPrediction.model_validate({"wine_quality": str(prediction)})
-        return validPrediction
-    except ValidationError as e:
-        raise ValueError(f"Predicción inválida: {e}")
+    if not isinstance(artifact, dict):
+        raise ValueError("El artefacto no tiene el formato esperado")
+
+    estimator = artifact.get("estimator")
+    if not (hasattr(estimator, "predict") and hasattr(estimator, "predict_proba")):
+        raise ValueError("El artefacto no contiene un clasificador compatible")
+
+    missing = {"feature_names", "model_version"} - artifact.keys()
+    if missing:
+        raise ValueError(f"Al artefacto le faltan claves: {sorted(missing)}")
+
+    if list(artifact["feature_names"]) != list(FEATURE_NAMES):
+        raise ValueError(
+            f"feature_names incompatibles.\n"
+            f"Modelo: {artifact['feature_names']}\nContrato: {FEATURE_NAMES}"
+        )
+
+    if artifact["model_version"] != MODEL_VERSION:
+        raise ValueError(
+            f"Versión incompatible: modelo {artifact['model_version']}, esperada {MODEL_VERSION}"
+        )
+
+    return estimator, artifact["model_version"]
+
+def infer_wine_quality(features, estimator):
+    vector = [features.as_vector()]
+    band = estimator.predict(vector)[0]
+    confidence = float(estimator.predict_proba(vector)[0].max())
+    return str(band), confidence

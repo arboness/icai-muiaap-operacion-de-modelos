@@ -1,6 +1,6 @@
-wrong, sample_id,fixed_acidity,volatile_acidity,citric_acid,residual_sugar,chlorides,free_sulfur_dioxide,total_sulfur_dioxide,density,ph,sulphates,alcohol,predictions
-3,red-001,7.4,0.7,0.0,1.9,0.076,11.0,34.0,0.9978,3.51,0.56,9.4,needs_review
-3,red-002,7.8,0.88,0.0,2.6,0.098,25.0,67.0,0.9968,3.2,0.68,9.8,needs_review
-3,red-003,11.2,0.28,0.56,1.9,0.075,17.0,60.0,0.998,3.16,0.58,9.8,acceptable
-3,red-004,7.3,0.65,0.0,1.2,0.065,15.0,21.0,0.9946,3.39,0.47,10.0,needs_review
-3,red-005,7.8,0.58,0.02,2.0,0.073,9.0,18.0,0.9968,3.36,0.57,9.5,needs_review
+sample_id,quality_band,confidence,model_version,preprocessing_version
+red-001,needs_review,0.8637529232968751,wine-quality-rf-v1,wine-red-features-v1
+red-002,needs_review,0.8154491237086176,wine-quality-rf-v1,wine-red-features-v1
+red-003,acceptable,0.6167636066419362,wine-quality-rf-v1,wine-red-features-v1
+red-004,needs_review,0.7603700833115055,wine-quality-rf-v1,wine-red-features-v1
+red-005,needs_review,0.7330270207757933,wine-quality-rf-v1,wine-red-features-v1
