@@ -38,7 +38,7 @@ class PredictionController:
         emit: StateEmitter | None = None,
     ) -> UiState:
         """TODO: emite loading, mide, valida la salida y devuelve success/error."""
-
+        prediction()
         raise NotImplementedError(
             "TODO: implementa la transición loading -> success/error"
         )
