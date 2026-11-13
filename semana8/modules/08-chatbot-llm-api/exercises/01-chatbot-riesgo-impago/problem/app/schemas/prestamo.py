@@ -10,7 +10,9 @@ class PrestamoEntrada(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     edad: int = Field(ge=18, le=75, description="Edad del solicitante en anios")
-    ingresos_mensuales: float = Field(gt=0, description="Ingresos netos mensuales en euros")
+    ingresos_mensuales: float = Field(
+        gt=0, description="Ingresos netos mensuales en euros"
+    )
     importe_prestamo: float = Field(gt=0, description="Importe solicitado en euros")
     plazo_meses: int = Field(ge=6, le=84, description="Plazo de devolucion en meses")
     antiguedad_laboral_anios: int = Field(

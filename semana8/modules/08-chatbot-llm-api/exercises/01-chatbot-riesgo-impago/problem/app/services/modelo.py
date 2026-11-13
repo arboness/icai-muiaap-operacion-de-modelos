@@ -29,4 +29,6 @@ def predecir(entrada):
     datos = entrada.model_dump()
     fila = [[datos[variable] for variable in VARIABLES]]
     probabilidad = float(modelo.predict_proba(fila)[0][1])
-    return PrediccionSalida(probabilidad_impago=probabilidad, decision=decidir(probabilidad))
+    return PrediccionSalida(
+        probabilidad_impago=probabilidad, decision=decidir(probabilidad)
+    )

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 
 from app.schemas.chat import ChatEntrada, ChatSalida
@@ -8,5 +10,5 @@ router = APIRouter()
 
 
 @router.post("/chat", response_model=ChatSalida)
-def chat(entrada: ChatEntrada, llm=Depends(get_llm)):
+def chat(entrada: ChatEntrada, llm: Annotated[object, Depends(get_llm)]):
     return responder(entrada.mensajes, llm)

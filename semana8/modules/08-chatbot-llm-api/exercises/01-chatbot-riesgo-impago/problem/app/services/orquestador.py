@@ -75,7 +75,8 @@ def ejecutar_tool(nombre, argumentos_json):
 
     try:
         salida = predecir(entrada)
-    except Exception as error:  # el LLM nunca debe ver una excepcion, solo un resultado
+    # Captura amplia a proposito: el LLM nunca debe ver una excepcion, solo un resultado
+    except Exception as error:  # noqa: BLE001
         return {"ok": False, "error": f"Error al ejecutar el modelo: {error}"}
 
     return {"ok": True, **salida.model_dump()}
@@ -95,17 +96,25 @@ def responder(mensajes, llm):
         llamadas = respuesta.get("tool_calls") or []
 
         if not llamadas:
-            return ChatSalida(respuesta=respuesta.get("content") or "", herramienta=herramienta_usada)
+            return ChatSalida(
+                respuesta=respuesta.get("content") or "", herramienta=herramienta_usada
+            )
 
         historial.append(
-            {"role": "assistant", "content": respuesta.get("content"), "tool_calls": llamadas}
+            {
+                "role": "assistant",
+                "content": respuesta.get("content"),
+                "tool_calls": llamadas,
+            }
         )
         for llamada in llamadas:
             nombre = llamada["function"]["name"]
             argumentos_json = llamada["function"]["arguments"]
             resultado = ejecutar_tool(nombre, argumentos_json)
             herramienta_usada = HerramientaUsada(
-                nombre=nombre, argumentos=leer_argumentos(argumentos_json), resultado=resultado
+                nombre=nombre,
+                argumentos=leer_argumentos(argumentos_json),
+                resultado=resultado,
             )
             historial.append(
                 {
