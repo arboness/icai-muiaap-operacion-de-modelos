@@ -1,0 +1,23 @@
+[project]
+name = "practica8"
+version = "0.1.0"
+description = "Practica 8: chatbot de riesgo con LLM (LiteLLM), FastAPI y un modelo joblib"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "scikit-learn",
+    "joblib",
+    "numpy",
+    "httpx",
+    "streamlit",
+    "litellm",
+    "pytest",
+    "mcp",
+    "ipykernel>=7.4.0",
+    "pip>=26.3",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
