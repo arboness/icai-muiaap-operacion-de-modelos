@@ -29,7 +29,6 @@ VALID_FEATURES_EXAMPLE = {
     "alcohol": 9.4,
 }
 
-
 class WineFeatures(BaseModel):
     """Once variables fisicoquímicas de un vino tinto, con rangos inclusivos."""
 
@@ -74,6 +73,10 @@ class Prediction(BaseModel):
     # `quality_band` (usa QualityBand, no `str`), `confidence` (entre 0 y 1),
     # `model_version` y `preprocessing_version`. Lo que no declares aquí no
     # saldrá en la respuesta: así se filtra `raw_score`.
+    model_config = ConfigDict(extra='forbiden')
+    
+    quality_band: 
+    
     # TODO S9.1b: el modelo devuelve la confianza con todos sus decimales; el
     # contrato público la expone con dos. Investiga `@field_serializer` de
     # Pydantic v2: la decisión pertenece al contrato, no al predictor.
