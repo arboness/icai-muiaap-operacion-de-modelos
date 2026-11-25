@@ -39,7 +39,7 @@ if st.session_state.show_help:
 st.info("TODO C: dibuja aquí el historial y su contador.")
 
 history = st.session_state.get("history", [])
-st.metric("Filas", len(history)/2)
+st.metric("Filas", len(history))
 if len(history) != 0:
     st.dataframe(history)
 
