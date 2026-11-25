@@ -37,17 +37,39 @@ class WineFeatures(BaseModel):
     # TODO S9.3d: añade `description=` a cada Field (unidad incluida, p. ej.
     # "Alcohol (% vol.)."). Swagger la muestra junto al rango; el test
     # `test_feature_fields_are_described` comprueba los once campos.
-    fixed_acidity: float = Field(ge=0, le=20)
-    volatile_acidity: float = Field(ge=0, le=2)
-    citric_acid: float = Field(ge=0, le=2)
-    residual_sugar: float = Field(ge=0, le=20)
-    chlorides: float = Field(ge=0, le=1)
-    free_sulfur_dioxide: float = Field(ge=0, le=100)
-    total_sulfur_dioxide: float = Field(ge=0, le=300)
-    density: float = Field(ge=0.98, le=1.01)
-    ph: float = Field(ge=2.5, le=4.5)
-    sulphates: float = Field(ge=0, le=3)
-    alcohol: float = Field(ge=5, le=20)
+    fixed_acidity: float = Field(
+        ge=0, le=20, description="Acidez fija (g de ácido tartárico/dm³)."
+    )
+    volatile_acidity: float = Field(
+        ge=0, le=2, description="Acidez volátil (g de ácido acético/dm³)."
+    )
+    citric_acid: float = Field(
+        ge=0, le=2, description="Ácido cítrico (g/dm³)."
+    )
+    residual_sugar: float = Field(
+        ge=0, le=20, description="Azúcar residual (g/dm³)."
+    )
+    chlorides: float = Field(
+        ge=0, le=1, description="Cloruros (g de cloruro sódico/dm³)."
+    )
+    free_sulfur_dioxide: float = Field(
+        ge=0, le=100, description="Dióxido de azufre libre (mg/dm³)."
+    )
+    total_sulfur_dioxide: float = Field(
+        ge=0, le=300, description="Dióxido de azufre total (mg/dm³)."
+    )
+    density: float = Field(
+        ge=0.98, le=1.01, description="Densidad (g/cm³)."
+    )
+    ph: float = Field(
+        ge=2.5, le=4.5, description="pH (adimensional, escala 0–14)."
+    )
+    sulphates: float = Field(
+        ge=0, le=3, description="Sulfatos (g de sulfato potásico/dm³)."
+    )
+    alcohol: float = Field(
+        ge=5, le=20, description="Alcohol (% vol.)."
+    )
 
 
 class PredictionRequest(BaseModel):
@@ -56,6 +78,7 @@ class PredictionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     features: WineFeatures
+    
 
 
 class QualityBand(StrEnum):
@@ -68,19 +91,36 @@ class QualityBand(StrEnum):
 
 class Prediction(BaseModel):
     """Predicción pública: no incluye puntuaciones internas del modelo."""
+    model_config = ConfigDict(extra='forbid', from_attributes=True)
 
     # TODO S9.1a: declara los cuatro campos públicos del contrato de S7:
     # `quality_band` (usa QualityBand, no `str`), `confidence` (entre 0 y 1),
     # `model_version` y `preprocessing_version`. Lo que no declares aquí no
     # saldrá en la respuesta: así se filtra `raw_score`.
+<<<<<<< Updated upstream
     model_config = ConfigDict(extra='forbiden')
     
     quality_band: 
+=======
+    quality_band: QualityBand = Field(
+        description="Banda de calidad predicha para el vino.")
+    confidence: float = Field(
+        ge=0, le=1, description="Confianza del modelo en la banda predicha (0–1).")
+    model_version: str = Field(
+        description="Versión del modelo que generó la predicción.")
+    preprocessing_version: str = Field(
+        description="Versión del preprocesado aplicado a las features de entrada.")
+
+>>>>>>> Stashed changes
     
     # TODO S9.1b: el modelo devuelve la confianza con todos sus decimales; el
     # contrato público la expone con dos. Investiga `@field_serializer` de
     # Pydantic v2: la decisión pertenece al contrato, no al predictor.
     # Comprobación: tests/test_s9_1_output_contract.py
+    @field_serializer('confidence')
+    def confidence_serializer(self, confidence: float):
+        return round(confidence, 2)
+        
 
 
 class PredictionResponse(BaseModel):
@@ -90,7 +130,20 @@ class PredictionResponse(BaseModel):
     # nuevo `served_at: datetime`. Serialízalo en UTC, ISO 8601 y con sufijo
     # `Z` (por ejemplo `2026-10-20T09:15:00.123Z`). Añadir un campo es un
     # cambio compatible: ¿qué parte de la versión de la API debes subir?
+    model_config = ConfigDict(extra="forbid")
 
+    prediction: Prediction = Field(description="Predicción del modelo.")
+    request_id: str = Field(description="Identificador único de la petición.")
+    served_at: datetime = Field(
+        description="Momento en que se sirvió la respuesta (UTC)."
+    )
+
+    @field_serializer("served_at")
+    def serialize_served_at(self, served_at: datetime) -> str:
+        if served_at.tzinfo is None:
+            served_at = served_at.replace(tzinfo=UTC)
+        utc = served_at.astimezone(UTC)
+        return utc.isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 class HealthResponse(BaseModel):
     """Estado del servicio y del modelo cargado."""

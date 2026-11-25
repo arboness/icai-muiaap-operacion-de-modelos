@@ -11,11 +11,48 @@ from wine_api.predictor import Predictor, build_predictor
 from wine_api.request_id import request_id_middleware
 from wine_api.routers import health, predictions
 
-# TODO S9.3g: completa los metadatos que lee el consumidor en /docs:
-# `version` (¿mayor, menor o parche tras S9.1c?), `summary`, una `description`
-# en Markdown que explique `request_id` y el sobre de error, y `openapi_tags`
-# con una descripción por tag. Comprobación: tests/test_s9_3_openapi.py
-API_VERSION = "1.0.0"
+API_VERSION = "1.1.0"  
+
+API_SUMMARY = (
+    "Predicción de la calidad de vinos tintos a partir de su análisis fisicoquímico."
+)
+
+API_DESCRIPTION = """
+Servicio que expone un modelo de ML entrenado sobre el dataset *Wine Quality* (vino tinto).
+
+## `request_id`
+Cada petición recibe un identificador único. Si envías la cabecera `X-Request-ID`,
+se respeta tu valor; si no, el servidor genera uno. Se devuelve siempre en la
+cabecera `X-Request-ID` de la respuesta y dentro del sobre de error.
+**Inclúyelo al reportar un problema**: permite localizar la petición en los logs.
+
+## Sobre de error
+Todos los errores comparten la misma estructura:
+
+```json
+{
+  "error": {
+    "code": "validation_error",
+    "message": "Descripción legible del problema.",
+    "request_id": "3f2c9e1a-..."
+  }
+}
+```
+
+- **422**: el cuerpo no cumple el esquema (faltan campos, sobran campos, tipo o rango incorrecto).
+- **503**: el modelo aún no está disponible; es temporal, reintenta más tarde.
+"""  
+
+OPENAPI_TAGS = [
+    {
+        "name": "health",
+        "description": "Estado del servicio: si está vivo y si está listo para predecir.",
+    },
+    {
+        "name": "predictions",  # ← AJUSTA: el mismo nombre que en tags=[...] del router
+        "description": "Predicción de la calidad de un vino a partir de sus once features.",
+    },
+]
 
 
 def create_app(predictor: Predictor | None = None) -> FastAPI:
@@ -28,7 +65,14 @@ def create_app(predictor: Predictor | None = None) -> FastAPI:
         )
         yield
 
-    app = FastAPI(title="Wine Quality API", version=API_VERSION, lifespan=lifespan)
+    app = FastAPI(
+        title="Wine Quality API",
+        version=API_VERSION,
+        summary=API_SUMMARY,
+        description=API_DESCRIPTION,
+        openapi_tags=OPENAPI_TAGS,
+        lifespan=lifespan,
+    )
     app.middleware("http")(request_id_middleware)
     install_error_handlers(app)
     app.include_router(health.router)
